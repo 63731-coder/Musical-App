@@ -1,0 +1,6 @@
+# Ignorer les fichiers .idea
+.idea/
+
+# Ignorer le dossier de build de CMake
+cmake-build-debug/
+
