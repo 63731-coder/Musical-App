@@ -1,6 +1,13 @@
-#include <iostream>
+#include "audioEngine/AudioGenerator.h"
+#include "audioEngine/Synth.h"
+
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    double sampleRate = 44100.0;
+    Synth synth(sampleRate);
+    AudioGenerator audioGenerator;
+
+    audioGenerator.init();
+
     return 0;
 }
