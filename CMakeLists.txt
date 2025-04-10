@@ -8,12 +8,8 @@ include_directories("libraries/imgui/backends"
         "libraries/portaudio/include"
 )
 add_executable(synth-63731 main.cpp
-        audioEngine/Oscillator.cpp
-        audioEngine/Envelope.cpp
-        audioEngine/LowPassFilter.cpp
-        audioEngine/Delay.cpp
-        audioEngine/Synth.cpp
-        audioEngine/AudioGenerator.cpp
+        audio/Oscillator.cpp
+        AudioGenerator.cpp
         ./libraries/imgui/imgui.cpp
         ./libraries/imgui/imgui_demo.cpp
         ./libraries/imgui/imgui_draw.cpp

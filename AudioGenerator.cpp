@@ -1,8 +1,11 @@
 #include <iostream>
 #include "AudioGenerator.h"
 
-constexpr int FRAMES_PER_BUFFER {256};
-constexpr int SAMPLE_RATE {44100};
+#include <cmath>
+
+#include "utils/Constants.h"
+
+
 
 void AudioGenerator::init() {
 
@@ -39,8 +42,13 @@ int AudioGenerator::audioCallback(const void *inputBuffer,
                                   PaStreamCallbackFlags statusFlags,
                                   void *userData) {
 
-    // DO STUFF WITH OUTPUTBUFFER
-    // ...
+    const int audioBufferSize = framesPerBuffer*2;
+    const int frequency = 440;
+    float* audioBuffer = reinterpret_cast<float *>(outputBuffer);
+    for (int i = 0; i < audioBufferSize; i+=2) {
+        audioBuffer[i] = std::sin(TWO_PI * frequency * i / SAMPLE_RATE);
+        audioBuffer[i+1] = audioBuffer[i];
+    }
 
     return 0;
 }
