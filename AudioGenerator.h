@@ -2,10 +2,14 @@
 #define SIMPLE_SYNTH_AUDIOGENERATOR_H
 
 #include "portaudio.h"
+#include "audio/Oscillator.h"
 
 class AudioGenerator {
 public:
-    void init();
+    void init(Oscillator* osc);
+    struct AudioCallbackData {
+        Oscillator* osc;
+    };
 
 private:
     static int audioCallback( const void *inputBuffer, void *outputBuffer,

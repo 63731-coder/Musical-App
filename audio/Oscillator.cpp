@@ -46,7 +46,5 @@ float Oscillator::getNextSample() {
     if (phase >= TWO_PI) {
         phase -= TWO_PI;
     }
-    std::cout << "sample = " << sample << std::endl;
-
-    return sample * 0.3f; // on baisse un peu le volume
+    return sample * 0.3f; // lower volume
 }

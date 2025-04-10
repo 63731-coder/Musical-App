@@ -7,7 +7,9 @@
 
 
 
-void AudioGenerator::init() {
+void AudioGenerator::init(Oscillator* osc) {
+    static AudioCallbackData callbackData;  // notre structure créée à l’étape 1
+    callbackData.osc = osc;                 // on lui donne un pointeur vers l’oscillateur
 
     PaError errorInit = Pa_Initialize();
     if( errorInit != paNoError ) {
@@ -26,7 +28,8 @@ void AudioGenerator::init() {
                                        SAMPLE_RATE,
                                        FRAMES_PER_BUFFER,
                                        audioCallback,
-                                       nullptr );
+                                       &callbackData); // <-- pass the structure from .h
+
 
     errorStream = Pa_StartStream( stream );
     if( errorStream != paNoError ) {
@@ -42,12 +45,14 @@ int AudioGenerator::audioCallback(const void *inputBuffer,
                                   PaStreamCallbackFlags statusFlags,
                                   void *userData) {
 
-    const int audioBufferSize = framesPerBuffer*2;
-    const int frequency = 440;
+    auto* data = static_cast<AudioCallbackData*>(userData);
+    Oscillator* osc = data->osc;
     float* audioBuffer = reinterpret_cast<float *>(outputBuffer);
-    for (int i = 0; i < audioBufferSize; i+=2) {
-        audioBuffer[i] = std::sin(TWO_PI * frequency * i / SAMPLE_RATE);
-        audioBuffer[i+1] = audioBuffer[i];
+
+    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+        float sample = osc->getNextSample();
+        audioBuffer[i * 2] = sample;
+        audioBuffer[i * 2 + 1] = sample;
     }
 
     return 0;

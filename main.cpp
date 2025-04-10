@@ -4,15 +4,16 @@
 
 
 int main() {
-    //TODO: un thread pour Audio, un thread pour GUI
-    // si on importe des codes pour les touches, faut importer celles de dreamGUI
+    //TODO: one thread for Audio, one thread for GUI
+    // if we import key codes, we need to import those from dreamGUI
+    // at page 7 we have the order in which we have to apply the filters
     Oscillator osc;
     AudioGenerator audio;
 
-    osc.setWaveform(WaveformType::SQUARE);
+    osc.setWaveform(WaveformType::SAW);
     osc.setFrequency(440.0f);
 
-    audio.init();
+    audio.init(&osc);
     std::cin.get(); // Tap to stop
     return 0;
 }

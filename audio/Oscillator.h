@@ -23,9 +23,9 @@ public:
 private:
     float frequency;
     WaveformType waveform;
-    double phase;
-    double phaseIncrement;
-    void updatePhaseIncrement();
+    double phase;               // Current position within the waveform cycle (between 0 and 2π)
+    double phaseIncrement;      // Amount by which the phase advances at each audio tick
+    void updatePhaseIncrement();// Recomputes phase increment when frequency changes
 };
 
 
