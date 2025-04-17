@@ -9,16 +9,21 @@ int main() {
     // if we import key codes, we need to import those from dreamGUI
     // at page 7 we have the order in which we have to apply the filters
 
-    Oscillator osc;
+    Oscillator osc1;
+    Oscillator osc2;
     AudioGenerator audio;
 
-    osc.setWaveform(WaveformType::SQUARE);
-    osc.setFrequency(440.0f);
-    audio.init(&osc);
-    //std::cin.get();
+    osc1.setWaveform(WaveformType::SQUARE);
+    osc1.setFrequency(440.0f);
+
+    osc2.setWaveform(WaveformType::SAW);
+
+    audio.init(&osc1, &osc2);
 
     MainWindow window;
-    window.osc = &osc;
+    window.osc1 = &osc1;
+    window.osc2 = &osc2;
+    window.callbackData = audio.getCallbackData();
 
     window.init();
     window.run();

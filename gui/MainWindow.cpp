@@ -105,12 +105,11 @@ void MainWindow::run() {
 void MainWindow::draw() {
     ImGui::Begin("Synth");
 
-    static bool osc1Active = true;
-    ImGui::Checkbox("Oscillator 1", &osc1Active);
-
-    static bool osc2Active = false; //checkbox for osclillator 2 --> not used yet
-    ImGui::SameLine();
-    ImGui::Checkbox("Oscillator 2", &osc2Active);
+    if (callbackData) {
+        ImGui::Checkbox("Oscillator 1", &callbackData->osc1Active);
+        ImGui::SameLine();
+        ImGui::Checkbox("Oscillator 2", &callbackData->osc2Active);
+    }
 
     ImGui::Spacing();
 
@@ -118,22 +117,22 @@ void MainWindow::draw() {
     static int waveformIndex = 0;
     const char* waveformItems[] = { "SINE", "SQUARE", "SAW" };
     if (ImGui::Combo("OSC1 waveform", &waveformIndex, waveformItems, IM_ARRAYSIZE(waveformItems))) {
-        if (osc) {
+        if (osc1) {
             switch (waveformIndex) {
-                case 0: osc->setWaveform(WaveformType::SINE); break;
-                case 1: osc->setWaveform(WaveformType::SQUARE); break;
-                case 2: osc->setWaveform(WaveformType::SAW); break;
+                case 0: osc1->setWaveform(WaveformType::SINE); break;
+                case 1: osc1->setWaveform(WaveformType::SQUARE); break;
+                case 2: osc1->setWaveform(WaveformType::SAW); break;
             }
         }
     }
 
     ImGui::Spacing();
 
-    // Frequency offset slider [-5Hz : +5Hz]
+    // Frequency offset slider
     static float freqOffset = 0.0f;
     if (ImGui::SliderFloat("Freq Offset OSC1", &freqOffset, -5.0f, 5.0f, "%.3f")) {
-        if (osc) {
-            osc->setFrequency(440.0f + freqOffset); // base = 440Hz
+        if (osc1) {
+            osc1->setFrequency(440.0f + freqOffset); // base = 440Hz
         }
     }
 
@@ -144,13 +143,13 @@ void MainWindow::draw() {
 
     // TODO: until now we generate the notes on the keyboard only by changing th -e frecquency
     // TODO: later --> Enable ADSR envelope to manage attack/releaseEnable ADSR envelope to manage attack/release
-    
+
     for (int i = 0; i < 12; ++i) {
         std::string label = std::to_string(i + 1);
         if (ImGui::Button(label.c_str(), ImVec2(32, 32))) {
-            if (osc) {
+            if (osc1) {
                 float noteFreq = 220.0f * std::pow(2.0f, i / 12.0f);
-                osc->setFrequency(noteFreq);
+                osc1->setFrequency(noteFreq);
                 std::cout << "Note " << i << " => " << noteFreq << " Hz" << std::endl;
             }
         }

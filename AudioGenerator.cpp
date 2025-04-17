@@ -7,9 +7,11 @@
 
 
 
-void AudioGenerator::init(Oscillator* osc) {
-    static AudioCallbackData callbackData;
-    callbackData.osc = osc;                 // pointer to the oscillator
+void AudioGenerator::init(Oscillator* osc1, Oscillator* osc2) {
+    //AudioCallbackData callbackData;
+    this->callbackData.osc1 = osc1;
+    this->callbackData.osc2 = osc2;
+
 
     PaError errorInit = Pa_Initialize();
     if( errorInit != paNoError ) {
@@ -46,15 +48,25 @@ int AudioGenerator::audioCallback(const void *inputBuffer,
                                   void *userData) {
 
     auto* data = static_cast<AudioCallbackData*>(userData);
-    Oscillator* osc = data->osc;
+    Oscillator* osc1 = data->osc1;
+    Oscillator* osc2 = data->osc2;
     float* audioBuffer = reinterpret_cast<float *>(outputBuffer);
 
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-        float sample = osc->getNextSample();
+        float sample = 0.0f;
+
+        if (osc1 && data->osc1Active) sample += osc1->getNextSample();
+        if (osc2 && data->osc2Active) sample += osc2->getNextSample();
+
         audioBuffer[i * 2] = sample;
         audioBuffer[i * 2 + 1] = sample;
     }
 
     return 0;
 }
+
+AudioCallbackData* AudioGenerator::getCallbackData() {
+    return &callbackData;
+}
+
 

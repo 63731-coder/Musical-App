@@ -4,23 +4,26 @@
 #include "portaudio.h"
 #include "audio/Oscillator.h"
 
-class AudioGenerator {
-public:
-    void init(Oscillator* osc);
-    struct AudioCallbackData {
-        Oscillator* osc;
-    };
-
-private:
-    static int audioCallback( const void *inputBuffer, void *outputBuffer,
-                              unsigned long framesPerBuffer,
-                              const PaStreamCallbackTimeInfo* timeInfo,
-                              PaStreamCallbackFlags statusFlags,
-                              void *userData );
-
-    double currentTimeInSeconds {0.0};
-
+struct AudioCallbackData {
+    Oscillator* osc1 = nullptr;
+    Oscillator* osc2 = nullptr;
+    bool osc1Active = true;
+    bool osc2Active = false;
 };
 
+class AudioGenerator {
+public:
+    void init(Oscillator* osc1, Oscillator* osc2);
+    AudioCallbackData* getCallbackData();
+
+private:
+    static int audioCallback(const void *inputBuffer, void *outputBuffer,
+                             unsigned long framesPerBuffer,
+                             const PaStreamCallbackTimeInfo* timeInfo,
+                             PaStreamCallbackFlags statusFlags,
+                             void *userData);
+    AudioCallbackData callbackData;
+    double currentTimeInSeconds {0.0};
+};
 
 #endif //SIMPLE_SYNTH_AUDIOGENERATOR_H

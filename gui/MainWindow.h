@@ -4,12 +4,16 @@
 
 #include <SDL3/SDL.h>
 #include "../audio/Oscillator.h"
+#include "../AudioGenerator.h"
+
 
 class MainWindow {
 public :
     void init();
     void run();
-    Oscillator* osc = nullptr;
+    Oscillator* osc1 = nullptr;
+    Oscillator* osc2 = nullptr;
+    AudioCallbackData* callbackData = nullptr;
 private:
     void draw();
     SDL_Window* window { nullptr };
