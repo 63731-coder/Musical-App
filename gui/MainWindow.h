@@ -7,6 +7,7 @@
 #include "../AudioGenerator.h"
 
 
+
 class MainWindow {
 public :
     void init();
@@ -14,6 +15,7 @@ public :
     Oscillator* osc1 = nullptr;
     Oscillator* osc2 = nullptr;
     AudioCallbackData* callbackData = nullptr;
+    AudioGenerator* audio = nullptr;
 private:
     void draw();
     SDL_Window* window { nullptr };

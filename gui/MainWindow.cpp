@@ -112,7 +112,6 @@ void MainWindow::draw() {
     }
 
     ImGui::Spacing();
-
     // Waveform selection
     static int waveformIndex = 0;
     const char* waveformItems[] = { "SINE", "SQUARE", "SAW" };
@@ -126,9 +125,8 @@ void MainWindow::draw() {
         }
     }
 
-    ImGui::Spacing();
-
     // Frequency offset slider
+    ImGui::Spacing();
     static float freqOffset = 0.0f;
     if (ImGui::SliderFloat("Freq Offset OSC1", &freqOffset, -5.0f, 5.0f, "%.3f")) {
         if (osc1) {
@@ -136,28 +134,36 @@ void MainWindow::draw() {
         }
     }
 
+    ImGui::Spacing();
+    static float attackTime = 0.5f;
+    static float releaseTime = 1.0f;
+    if (ImGui::SliderFloat("Attack", &attackTime, 0.001f, 1.0f, "%.3f s") ||
+        ImGui::SliderFloat("Release", &releaseTime, 0.001f, 1.0f, "%.3f s")) {
+        if (audio) {
+            audio->setEnvelopeParams(attackTime, releaseTime);
+        }
+        }
+
+
     // keyboard
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Text("Virtual Keyboard");
-
-    // TODO: until now we generate the notes on the keyboard only by changing th -e frecquency
-    // TODO: later --> Enable ADSR envelope to manage attack/releaseEnable ADSR envelope to manage attack/release
-
     for (int i = 0; i < 12; ++i) {
         std::string label = std::to_string(i + 1);
         if (ImGui::Button(label.c_str(), ImVec2(32, 32))) {
-            if (osc1) {
+            if (osc1 && audio) {
                 float noteFreq = 220.0f * std::pow(2.0f, i / 12.0f);
                 osc1->setFrequency(noteFreq);
-                std::cout << "Note " << i << " => " << noteFreq << " Hz" << std::endl;
+                audio->noteOn();
+
+                std::thread([a = audio]() {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                    a->noteOff();
+                }).detach();
             }
         }
-
         if (i < 11) ImGui::SameLine();
     }
-
-
-
     ImGui::End();
 }

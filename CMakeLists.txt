@@ -9,6 +9,7 @@ include_directories("libraries/imgui/backends"
 )
 add_executable(synth-63731 main.cpp
         audio/Oscillator.cpp
+        audio/Envelope.cpp
         AudioGenerator.cpp
         ./gui/MainWindow.cpp
         ./libraries/imgui/imgui.cpp

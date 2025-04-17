@@ -1,4 +1,3 @@
-#include <iostream>
 #include "audio/Oscillator.h"
 #include "AudioGenerator.h"
 #include "gui/MainWindow.h"
@@ -24,6 +23,9 @@ int main() {
     window.osc1 = &osc1;
     window.osc2 = &osc2;
     window.callbackData = audio.getCallbackData();
+
+    audio.noteOn();
+    window.audio = &audio;
 
     window.init();
     window.run();

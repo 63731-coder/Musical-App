@@ -8,9 +8,10 @@
 
 
 void AudioGenerator::init(Oscillator* osc1, Oscillator* osc2) {
-    //AudioCallbackData callbackData;
     this->callbackData.osc1 = osc1;
     this->callbackData.osc2 = osc2;
+    this->callbackData.envelope = &envelope;
+
 
 
     PaError errorInit = Pa_Initialize();
@@ -58,6 +59,9 @@ int AudioGenerator::audioCallback(const void *inputBuffer,
         if (osc1 && data->osc1Active) sample += osc1->getNextSample();
         if (osc2 && data->osc2Active) sample += osc2->getNextSample();
 
+        if (data->envelope) {
+            sample *= data->envelope->nextSample();
+        }
         audioBuffer[i * 2] = sample;
         audioBuffer[i * 2 + 1] = sample;
     }
@@ -69,4 +73,15 @@ AudioCallbackData* AudioGenerator::getCallbackData() {
     return &callbackData;
 }
 
+void AudioGenerator::noteOn() {
+    envelope.noteOn();
+}
 
+void AudioGenerator::noteOff() {
+    envelope.noteOff();
+}
+
+void AudioGenerator::setEnvelopeParams(float attack, float release) {
+    envelope.setAttackTime(attack);
+    envelope.setReleaseTime(release);
+}

@@ -3,10 +3,13 @@
 
 #include "portaudio.h"
 #include "audio/Oscillator.h"
+#include "audio/Envelope.h"
+
 
 struct AudioCallbackData {
     Oscillator* osc1 = nullptr;
     Oscillator* osc2 = nullptr;
+    Envelope* envelope = nullptr;
     bool osc1Active = true;
     bool osc2Active = false;
 };
@@ -16,7 +19,12 @@ public:
     void init(Oscillator* osc1, Oscillator* osc2);
     AudioCallbackData* getCallbackData();
 
+    void noteOn();
+    void noteOff();
+    void setEnvelopeParams(float attack, float release);
+
 private:
+    Envelope envelope;
     static int audioCallback(const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,
