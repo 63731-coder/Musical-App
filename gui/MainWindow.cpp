@@ -1,6 +1,7 @@
 
 #include "MainWindow.h"
 
+#include <cmath>
 #include <iostream>
 #include <thread>
 #include "imgui.h"
@@ -19,7 +20,7 @@ void MainWindow::init() {
     }
     // Create window with SDL_Renderer graphics context
     Uint32 window_flags = SDL_WINDOW_HIDDEN;
-    window = SDL_CreateWindow("", 384, 268, window_flags);
+    window = SDL_CreateWindow("", 800, 750, window_flags);
     if (nullptr == window) {
         SDL_Log("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
         return;
@@ -102,14 +103,21 @@ void MainWindow::run() {
 }
 
 void MainWindow::draw() {
-    ImGui::Begin("My Window");
+    ImGui::Begin("Synth");
 
+    static bool osc1Active = true;
+    ImGui::Checkbox("Oscillator 1", &osc1Active);
+
+    static bool osc2Active = false; //checkbox for osclillator 2 --> not used yet
+    ImGui::SameLine();
+    ImGui::Checkbox("Oscillator 2", &osc2Active);
+
+    ImGui::Spacing();
+
+    // Waveform selection
     static int waveformIndex = 0;
     const char* waveformItems[] = { "SINE", "SQUARE", "SAW" };
-
-    if (ImGui::Combo("Waveform", &waveformIndex, waveformItems, IM_ARRAYSIZE(waveformItems))) {
-        std::cout << "Selected waveform: " << waveformItems[waveformIndex] << std::endl;
-
+    if (ImGui::Combo("OSC1 waveform", &waveformIndex, waveformItems, IM_ARRAYSIZE(waveformItems))) {
         if (osc) {
             switch (waveformIndex) {
                 case 0: osc->setWaveform(WaveformType::SINE); break;
@@ -119,7 +127,38 @@ void MainWindow::draw() {
         }
     }
 
+    ImGui::Spacing();
 
-    ImGui::Text("Hello Imgui");
+    // Frequency offset slider [-5Hz : +5Hz]
+    static float freqOffset = 0.0f;
+    if (ImGui::SliderFloat("Freq Offset OSC1", &freqOffset, -5.0f, 5.0f, "%.3f")) {
+        if (osc) {
+            osc->setFrequency(440.0f + freqOffset); // base = 440Hz
+        }
+    }
+
+    // keyboard
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("Virtual Keyboard");
+
+    // TODO: until now we generate the notes on the keyboard only by changing th -e frecquency
+    // TODO: later --> Enable ADSR envelope to manage attack/releaseEnable ADSR envelope to manage attack/release
+    
+    for (int i = 0; i < 12; ++i) {
+        std::string label = std::to_string(i + 1);
+        if (ImGui::Button(label.c_str(), ImVec2(32, 32))) {
+            if (osc) {
+                float noteFreq = 220.0f * std::pow(2.0f, i / 12.0f);
+                osc->setFrequency(noteFreq);
+                std::cout << "Note " << i << " => " << noteFreq << " Hz" << std::endl;
+            }
+        }
+
+        if (i < 11) ImGui::SameLine();
+    }
+
+
+
     ImGui::End();
 }
