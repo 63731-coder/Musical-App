@@ -8,8 +8,8 @@
 
 
 void AudioGenerator::init(Oscillator* osc) {
-    static AudioCallbackData callbackData;  // notre structure créée à l’étape 1
-    callbackData.osc = osc;                 // on lui donne un pointeur vers l’oscillateur
+    static AudioCallbackData callbackData;
+    callbackData.osc = osc;                 // pointer to the oscillator
 
     PaError errorInit = Pa_Initialize();
     if( errorInit != paNoError ) {
