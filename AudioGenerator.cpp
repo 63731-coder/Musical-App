@@ -11,10 +11,11 @@ void AudioGenerator::init(Oscillator* osc1, Oscillator* osc2) {
     this->callbackData.osc1 = osc1;
     this->callbackData.osc2 = osc2;
     this->callbackData.envelope = &envelope;
-
+    this->callbackData.filter = &filter;
 
 
     PaError errorInit = Pa_Initialize();
+
     if( errorInit != paNoError ) {
         std::cerr << "PortAudio error in Pa_Initialize(): "
                   << Pa_GetErrorText( errorInit ) << std::endl;
@@ -59,8 +60,12 @@ int AudioGenerator::audioCallback(const void *inputBuffer,
         if (osc1 && data->osc1Active) sample += osc1->getNextSample();
         if (osc2 && data->osc2Active) sample += osc2->getNextSample();
 
-        if (data->envelope) {
+        if (data->envelope) { //apply envelope
             sample *= data->envelope->nextSample();
+        }
+
+        if (data->filter) { // apply filter
+            sample = data->filter->process(sample);
         }
         audioBuffer[i * 2] = sample;
         audioBuffer[i * 2 + 1] = sample;
@@ -84,4 +89,9 @@ void AudioGenerator::noteOff() {
 void AudioGenerator::setEnvelopeParams(float attack, float release) {
     envelope.setAttackTime(attack);
     envelope.setReleaseTime(release);
+}
+
+void AudioGenerator::setFilterParams(float cutoff, float resonance) {
+    filter.setCutoff(cutoff);
+    filter.setResonance(resonance);
 }

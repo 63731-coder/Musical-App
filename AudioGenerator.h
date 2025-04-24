@@ -4,12 +4,15 @@
 #include "portaudio.h"
 #include "audio/Oscillator.h"
 #include "audio/Envelope.h"
+#include "audio/LowPassFilter.h"
 
 
 struct AudioCallbackData {
     Oscillator* osc1 = nullptr;
     Oscillator* osc2 = nullptr;
     Envelope* envelope = nullptr;
+    LowPassFilter* filter = nullptr;
+
     bool osc1Active = true;
     bool osc2Active = false;
 };
@@ -22,9 +25,12 @@ public:
     void noteOn();
     void noteOff();
     void setEnvelopeParams(float attack, float release);
+    void setFilterParams(float cutoff, float resonance);
+
 
 private:
     Envelope envelope;
+    LowPassFilter filter; //used at every audio sample to filter the sound
     static int audioCallback(const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,

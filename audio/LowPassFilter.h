@@ -26,7 +26,7 @@ private:
     float a0 = 0.0f, a1 = 0.0f, a2 = 0.0f;
     float b1 = 0.0f, b2 = 0.0f;
 
-    // State for mono (you’ll duplicate this for stereo if needed)
+    // State for mono (duplicate this for stereo if needed)
     float x1 = 0.0f, x2 = 0.0f;
     float y1 = 0.0f, y2 = 0.0f;
 };
