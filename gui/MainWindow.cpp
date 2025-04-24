@@ -7,6 +7,8 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
+#include <unordered_map>
+
 
 constexpr float FRAMERATE = 60.0f;
 constexpr std::chrono::duration<double, std::milli> TARGET_FRAMETIME(1000.0 / FRAMERATE);
@@ -54,37 +56,77 @@ void MainWindow::init() {
 void MainWindow::run() {
     const auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    // Table de correspondance : touche physique -> note MIDI index (0 à 11)
+    std::unordered_map<SDL_Scancode, int> keyToNote = {
+        {SDL_SCANCODE_Q, 0},
+        {SDL_SCANCODE_Z, 1},
+        {SDL_SCANCODE_S, 2},
+        {SDL_SCANCODE_E, 3},
+        {SDL_SCANCODE_D, 4},
+        {SDL_SCANCODE_F, 5},
+        {SDL_SCANCODE_T, 6},
+        {SDL_SCANCODE_G, 7},
+        {SDL_SCANCODE_Y, 8},
+        {SDL_SCANCODE_H, 9},
+        {SDL_SCANCODE_U, 10},
+        {SDL_SCANCODE_J, 11}
+    };
+
     bool done { false };
-    while (!done){
+    while (!done) {
         auto frameStart = std::chrono::high_resolution_clock::now();
 
         SDL_Event event;
-        while (SDL_PollEvent(&event)){
+        while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL3_ProcessEvent(&event);
-            if (SDL_EVENT_QUIT == event.type)
+
+            if (event.type == SDL_EVENT_QUIT)
                 done = true;
-            if ((SDL_EVENT_WINDOW_CLOSE_REQUESTED == event.type)
+
+            if ((event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
                 && (SDL_GetWindowID(window) == event.window.windowID))
                 done = true;
+
+            // 🎹 Gérer appui de touche
+            if (event.type == SDL_EVENT_KEY_DOWN) {
+                SDL_Scancode code = event.key.scancode;
+                auto it = keyToNote.find(code);
+                if (it != keyToNote.end()) {
+                    int noteIndex = it->second;
+                    float freq = 220.0f * std::pow(2.0f, noteIndex / 12.0f);
+                    if (osc1 && audio) {
+                        osc1->setFrequency(freq);
+                        audio->noteOn();
+                    }
+                }
+            }
+
+            // 🎹 Gérer relâchement
+            if (event.type == SDL_EVENT_KEY_UP) {
+                SDL_Scancode code = event.key.scancode;
+                if (keyToNote.find(code) != keyToNote.end()) {
+                    if (audio) {
+                        audio->noteOff();
+                    }
+                }
+            }
         }
 
-        // Start the Dear ImGui frame
+        // Start Dear ImGui frame
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
 
-        // all the UI code description
-        draw();
+        draw(); // Dessiner l'interface
 
         // Rendering
         ImGui::Render();
-        SDL_SetRenderDrawColorFloat(renderer,
-                                    clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         SDL_RenderClear(renderer);
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
         SDL_RenderPresent(renderer);
 
-        // Calculate time spent and sleep if needed
+        // Frame rate limiter
         auto frameEnd = std::chrono::high_resolution_clock::now();
         auto frameDuration = frameEnd - frameStart;
         if (frameDuration < TARGET_FRAMETIME) {
