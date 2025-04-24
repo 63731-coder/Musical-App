@@ -33,9 +33,13 @@ float Envelope::nextSample() {
             amplitude += attackIncrement;
         if (amplitude >= 1.0f) {
             amplitude = 1.0f;
-            state = State::IDLE;
+            state = State::SUSTAIN; // transition to sustain
         }
         break;
+
+        case State::SUSTAIN:
+            // Nothing to do, we keep the amplitude high ( 1f )
+                break;
 
         case State::RELEASE:
             amplitude -= releaseIncrement;
@@ -52,6 +56,7 @@ float Envelope::nextSample() {
 
     return amplitude;
 }
+
 
 void Envelope::updateIncrements() {
     if (attackTime > 0.0f)

@@ -21,6 +21,7 @@ private:
     enum class State {
         IDLE, //inactive
         ATTACK,
+        SUSTAIN, //between attack and release
         RELEASE
     };
 

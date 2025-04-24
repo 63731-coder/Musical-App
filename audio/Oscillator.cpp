@@ -32,13 +32,13 @@ float Oscillator::getNextSample() {
     float sample = 0.0f;
     switch (waveform) {
         case WaveformType::SINE:
-            sample = static_cast<float>(std::sin(phase));
+            sample = static_cast<float>(std::sin(phase) * 0.5);
         break;
         case WaveformType::SQUARE:
             sample = (std::sin(phase) >= 0.0) ? 0.5f : -0.5f;
         break;
         case WaveformType::SAW:
-            sample = static_cast<float>(2.0 * (phase / (TWO_PI)) - 1.0);
+            sample = static_cast<float>((phase / (TWO_PI)) - 0.5); //between -0.5 and 0.5
         break;
     }
 
@@ -46,5 +46,5 @@ float Oscillator::getNextSample() {
     if (phase >= TWO_PI) {
         phase -= TWO_PI;
     }
-    return sample * 0.3f; // lower volume
+    return sample;
 }
