@@ -176,7 +176,7 @@ void MainWindow::draw() {
         }
     }
 
-    ImGui::Spacing();
+    // Envelope
     static float attackTime = 0.5f;
     static float releaseTime = 1.0f;
     if (ImGui::SliderFloat("Attack", &attackTime, 0.001f, 1.0f, "%.3f s") ||
@@ -185,6 +185,18 @@ void MainWindow::draw() {
             audio->setEnvelopeParams(attackTime, releaseTime);
         }
         }
+
+    // Filter
+    bool changed = false;
+    static float cutoff = 20000.0f;     // Initial value
+    static float resonance = 0.0f;
+
+    changed |= ImGui::SliderFloat("Filter cutoff", &cutoff, 20.0f, 20000.0f, "%.1f Hz", ImGuiSliderFlags_Logarithmic);
+    changed |= ImGui::SliderFloat("Filter resonance", &resonance, 0.0f, 1.0f, "%.2f");
+
+    if (changed && audio) {
+        audio->setFilterParams(cutoff, resonance);
+    }
 
 
     // keyboard
