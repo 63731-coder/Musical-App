@@ -12,6 +12,7 @@ void AudioGenerator::init(Oscillator* osc1, Oscillator* osc2) {
     this->callbackData.osc2 = osc2;
     this->callbackData.envelope = &envelope;
     this->callbackData.filter = &filter;
+    this->callbackData.delay = &delay;
 
 
     PaError errorInit = Pa_Initialize();
@@ -67,6 +68,10 @@ int AudioGenerator::audioCallback(const void *inputBuffer,
         if (data->filter) { // apply filter
             sample = data->filter->process(sample);
         }
+
+        if (data->delay) {
+            sample = data->delay->process(sample);
+        }
         audioBuffer[i * 2] = sample;
         audioBuffer[i * 2 + 1] = sample;
     }
@@ -94,4 +99,9 @@ void AudioGenerator::setEnvelopeParams(float attack, float release) {
 void AudioGenerator::setFilterParams(float cutoff, float resonance) {
     filter.setCutoff(cutoff);
     filter.setResonance(resonance);
+}
+
+void AudioGenerator::setDelayParams(float timeInSec, float feedback) {
+    delay.setDelayTime(timeInSec);
+    delay.setFeedback(feedback);
 }

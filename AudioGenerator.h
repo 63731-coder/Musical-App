@@ -5,6 +5,8 @@
 #include "audio/Oscillator.h"
 #include "audio/Envelope.h"
 #include "audio/LowPassFilter.h"
+#include "audio/Delay.h"
+
 
 
 struct AudioCallbackData {
@@ -12,6 +14,7 @@ struct AudioCallbackData {
     Oscillator* osc2 = nullptr;
     Envelope* envelope = nullptr;
     LowPassFilter* filter = nullptr;
+    Delay* delay = nullptr;
 
     bool osc1Active = true;
     bool osc2Active = false;
@@ -26,10 +29,12 @@ public:
     void noteOff();
     void setEnvelopeParams(float attack, float release);
     void setFilterParams(float cutoff, float resonance);
+    void setDelayParams(float timeInSec, float feedback);
 
 
 private:
     Envelope envelope;
+    Delay delay;
     LowPassFilter filter; //used at every audio sample to filter the sound
     static int audioCallback(const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
