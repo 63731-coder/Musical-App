@@ -199,16 +199,16 @@ void MainWindow::draw() {
     }
 
     // Delay
-    static float delayTime = 0.0f;
-    static float feedback = 0.0f;
+    static float delayTime = 0.1f;
+    static float mix = 0.0f;
 
     bool delayChanged = false;
 
-    delayChanged |= ImGui::SliderFloat("Delay Time", &delayTime, 0.00f, 1.0f, "%.2f s");
-    delayChanged |= ImGui::SliderFloat("Delay Mix", &feedback, 0.0f, 0.95f, "%.2f");
+    delayChanged |= ImGui::SliderFloat("Delay Time", &delayTime, 0.1f, 1.0f, "%.2f s");
+    delayChanged |= ImGui::SliderFloat("Delay Mix", &mix, 0.0f, 1.0f, "%.2f");
 
     if (delayChanged && audio) {
-        audio->setDelayParams(delayTime, feedback);
+        audio->setDelayParams(delayTime, mix);
     }
 
 

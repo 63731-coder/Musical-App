@@ -104,7 +104,8 @@ void AudioGenerator::setFilterParams(float cutoff, float resonance) {
     filter.setResonance(resonance);
 }
 
-void AudioGenerator::setDelayParams(float delayTime, float mix) {
-    delay.setDelayTime(delayTime);
+void AudioGenerator::setDelayParams(float timeInSec, float mix) {
+    std::lock_guard lock(paramMutex);
+    delay.setDelayTime(timeInSec);
     callbackData.delayMix = mix;
 }

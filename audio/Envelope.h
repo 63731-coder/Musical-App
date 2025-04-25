@@ -27,8 +27,8 @@ private:
 
     State state = State::IDLE;
 
-    float attackTime = 0.01f;   // in seconds
-    float releaseTime = 0.2f;   // in seconds
+    float attackTime = 0.05f;   // in seconds
+    float releaseTime = 0.75f;   // in seconds
 
     float amplitude = 0.0f;     // current level (between 0.0 and 1.0)
     float attackIncrement = 0.0f;

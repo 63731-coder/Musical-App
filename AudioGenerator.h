@@ -1,6 +1,9 @@
 #ifndef SIMPLE_SYNTH_AUDIOGENERATOR_H
 #define SIMPLE_SYNTH_AUDIOGENERATOR_H
 
+#include <atomic>
+#include <mutex>
+
 #include "portaudio.h"
 #include "audio/Oscillator.h"
 #include "audio/Envelope.h"
@@ -17,8 +20,8 @@ struct AudioCallbackData {
     Delay* delay = nullptr;
     float delayMix = 0.5f;
 
-    bool osc1Active = true;
-    bool osc2Active = false;
+    std::atomic<bool> osc1Active {true};
+    std::atomic<bool> osc2Active {false};
 };
 
 class AudioGenerator {
@@ -34,6 +37,7 @@ public:
 
 
 private:
+    std::mutex paramMutex;
     Envelope envelope;
     Delay delay;
     LowPassFilter filter; //used at every audio sample to filter the sound
