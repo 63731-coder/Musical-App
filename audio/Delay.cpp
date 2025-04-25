@@ -6,7 +6,7 @@
 #include "../utils/Constants.h"
 
 Delay::Delay() {
-    setDelayTime(delayTime); // initialise le buffer
+    setDelayTime(delayTime); // initialise buffer
 }
 
 void Delay::setDelayTime(float seconds) {
@@ -14,10 +14,10 @@ void Delay::setDelayTime(float seconds) {
     updateBufferSize();
 }
 
-void Delay::setFeedback(float fb) {
-    if (fb < 0.0f) fb = 0.0f;
-    if (fb > 0.95f) fb = 0.95f; // éviter la saturation
-    feedback = fb;
+void Delay::setMix(float newMix) {
+    if (newMix < 0.0f) newMix = 0.0f;
+    if (newMix > 1.0f) newMix = 1.0f;
+    mix = newMix;
 }
 
 void Delay::updateBufferSize() {
@@ -31,11 +31,12 @@ float Delay::process(float input) {
     std::size_t readIndex = (writeIndex + 1) % bufferSize;
     float delayedSample = buffer[readIndex];
 
-    // Nouveau signal avec retour
-    float output = input + delayedSample;
-    buffer[writeIndex] = input + delayedSample * feedback;
+    float output = input + mix * delayedSample;
 
-    // Avancer dans le buffer
+    // Write in the buffer
+    buffer[writeIndex] = input;
+
+    // Advance in the buffer
     writeIndex = (writeIndex + 1) % bufferSize;
 
     return output;

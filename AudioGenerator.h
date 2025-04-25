@@ -15,6 +15,7 @@ struct AudioCallbackData {
     Envelope* envelope = nullptr;
     LowPassFilter* filter = nullptr;
     Delay* delay = nullptr;
+    float delayMix = 0.5f;
 
     bool osc1Active = true;
     bool osc2Active = false;
