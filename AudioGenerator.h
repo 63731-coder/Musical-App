@@ -1,34 +1,17 @@
 #ifndef SIMPLE_SYNTH_AUDIOGENERATOR_H
 #define SIMPLE_SYNTH_AUDIOGENERATOR_H
 
-#include <atomic>
-#include <mutex>
 
 #include "portaudio.h"
+#include "SharedAudioParams.h"
 #include "audio/Oscillator.h"
 #include "audio/Envelope.h"
 #include "audio/LowPassFilter.h"
 #include "audio/Delay.h"
 
-
-
-struct AudioCallbackData {
-    Oscillator* osc1 = nullptr;
-    Oscillator* osc2 = nullptr;
-    Envelope* envelope = nullptr;
-    LowPassFilter* filter = nullptr;
-    Delay* delay = nullptr;
-    float delayMix = 0.5f;
-
-    std::atomic<bool> osc1Active {true};
-    std::atomic<bool> osc2Active {false};
-};
-
 class AudioGenerator {
 public:
-    void init(Oscillator* osc1, Oscillator* osc2);
-    AudioCallbackData* getCallbackData();
-
+    void init(LockedSharedAudioParams* params);
     void noteOn();
     void noteOff();
     void setEnvelopeParams(float attack, float release);
@@ -37,16 +20,19 @@ public:
 
 
 private:
-    std::mutex paramMutex;
+    Oscillator oscillator1;
+    Oscillator oscillator2;
     Envelope envelope;
     Delay delay;
-    LowPassFilter filter; //used at every audio sample to filter the sound
+    LowPassFilter filter;
+
+    LockedSharedAudioParams* sharedParams = nullptr;
+
     static int audioCallback(const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,
                              const PaStreamCallbackTimeInfo* timeInfo,
                              PaStreamCallbackFlags statusFlags,
                              void *userData);
-    AudioCallbackData callbackData;
     double currentTimeInSeconds {0.0};
 };
 
