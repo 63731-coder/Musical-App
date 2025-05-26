@@ -6,45 +6,55 @@
 #include "Oscillator.h"
 #include "../utils/Constants.h"
 #include <cmath>
-#include <iostream>
-#include <ostream>
+
 
 Oscillator::Oscillator()
-    : frequency(440.0f), waveform(WaveformType::SINE), phase(0.0)
-{
-    updatePhaseIncrement();
+    : currentSampleRate(Constants::SampleRate),
+      currentFrequencyHz(440.0),
+      phaseRadians(0.0),
+      waveformType(Waveform::SINE) {
 }
 
-void Oscillator::setFrequency(float freq) {
-    frequency = freq;
-    updatePhaseIncrement();
+void Oscillator::setFrequency(double newFrequencyHz) {
+    currentFrequencyHz = newFrequencyHz;
 }
 
-void Oscillator::setWaveform(WaveformType type) {
-    waveform = type;
+void Oscillator::setWaveform(Waveform newWaveform) {
+    waveformType = newWaveform;
 }
 
-void Oscillator::updatePhaseIncrement() {
-    phaseIncrement = TWO_PI * frequency / SAMPLE_RATE;
+void Oscillator::resetPhase() {
+    phaseRadians = 0.0;
 }
 
-float Oscillator::getNextSample() {
-    float sample = 0.0f;
-    switch (waveform) {
-        case WaveformType::SINE:
-            sample = static_cast<float>(std::sin(phase) * 0.5);
-        break;
-        case WaveformType::SQUARE:
-            sample = (std::sin(phase) >= 0.0) ? 0.5f : -0.5f;
-        break;
-        case WaveformType::SAW:
-            sample = static_cast<float>((phase / (TWO_PI)) - 0.5); //between -0.5 and 0.5
-        break;
+void Oscillator::setSampleRate(double newSampleRate) {
+    currentSampleRate = newSampleRate;
+}
+
+void Oscillator::process(float* audioBuffer) {
+    double phaseIncrement = Constants::TWO_PI * currentFrequencyHz / currentSampleRate;
+
+    for (int i = 0; i < Constants::FramesPerBuffer; ++i) {
+        float sampleValue = 0.0f;
+
+        switch (waveformType) {
+            case Waveform::SINE:
+                sampleValue = static_cast<float>(sin(phaseRadians));
+            break;
+
+            case Waveform::SQUARE:
+                sampleValue = (phaseRadians < M_PI) ? -1.0f : 1.0f;
+            break;
+
+            case Waveform::SAW:
+                sampleValue = static_cast<float>((2.0 * (phaseRadians / Constants::TWO_PI)) - 1.0);
+            break;
+        }
+
+        audioBuffer[i] = sampleValue;
+
+        phaseRadians += phaseIncrement;
+        if (phaseRadians >= Constants::TWO_PI)
+            phaseRadians -= Constants::TWO_PI;
     }
-
-    phase += phaseIncrement;
-    if (phase >= TWO_PI) {
-        phase -= TWO_PI;
-    }
-    return sample;
 }

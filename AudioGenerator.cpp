@@ -1,107 +1,110 @@
-#include <iostream>
 #include "AudioGenerator.h"
-#include <cmath>
 #include "utils/Constants.h"
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include "audio/Envelope.h"
 
-void AudioGenerator::init(LockedSharedAudioParams* params) {
-    sharedParams = params;
+#include "audio/Delay.h"
 
-    // Initialisation des oscillateurs avec les paramètres initiaux
-    auto local = sharedParams->getCopy();
-    oscillator1.setWaveform(static_cast<WaveformType>(local.oscillator1WaveForm));
-    oscillator2.setWaveform(static_cast<WaveformType>(local.oscillator2WaveForm));
-    oscillator1.setFrequency(local.oscillator1Frequency);
-    oscillator2.setFrequency(local.oscillator2Frequency);
+AudioGenerator::AudioGenerator(LockedSynthParameters &sharedParams)
+    : params(sharedParams), wavOut("dump.wav",Constants::SampleRate)
+     {
+}
 
+
+void AudioGenerator::init() {
     PaError errorInit = Pa_Initialize();
     if (errorInit != paNoError) {
-        std::cerr << "PortAudio error in Pa_Initialize(): "
-                  << Pa_GetErrorText(errorInit) << std::endl;
+        std::cerr << "PortAudio error in Pa_Initialize(): " << Pa_GetErrorText(errorInit) << std::endl;
         return;
     }
 
-    PaError errorStream;
-    PaStream* stream;
-
-    errorStream = Pa_OpenDefaultStream(&stream,
-                                       0,
-                                       2,
-                                       paFloat32,
-                                       SAMPLE_RATE,
-                                       FRAMES_PER_BUFFER,
-                                       audioCallback,
-                                       this);
-
+    PaError errorStream = Pa_OpenDefaultStream(
+        &stream,
+        0, 2, paFloat32,
+        Constants::SampleRate,
+        Constants::FramesPerBuffer,
+        &AudioGenerator::audioCallback,
+        this
+    );
     if (errorStream != paNoError) {
-        std::cerr << "PortAudio error in Pa_OpenDefaultStream(): "
-                  << Pa_GetErrorText(errorStream) << std::endl;
+        std::cerr << "PortAudio error in Pa_OpenDefaultStream(): " << Pa_GetErrorText(errorStream) << std::endl;
         return;
     }
+
 
     errorStream = Pa_StartStream(stream);
     if (errorStream != paNoError) {
-        std::cerr << "PortAudio error in Pa_StartStream(): "
-                  << Pa_GetErrorText(errorStream) << std::endl;
+        std::cerr << "PortAudio error in Pa_StartStream(): " << Pa_GetErrorText(errorStream) << '\n';
     }
 }
 
-int AudioGenerator::audioCallback(const void* inputBuffer,
-                                  void* outputBuffer,
+int AudioGenerator::audioCallback(const void*, void* outputBuffer,
                                   unsigned long framesPerBuffer,
-                                  const PaStreamCallbackTimeInfo* timeInfo,
-                                  PaStreamCallbackFlags statusFlags,
+                                  const PaStreamCallbackTimeInfo*,
+                                  PaStreamCallbackFlags,
                                   void* userData) {
+    auto* generator = static_cast<AudioGenerator*>(userData);
+    float* out = static_cast<float*>(outputBuffer);
 
-    auto* self = static_cast<AudioGenerator*>(userData);
-    auto params = self->sharedParams->getCopy();
+    SynthParameters paramsSnapshot = generator->params.getCopy();
+  //  std::cout << "Live cutoff: " << paramsSnapshot.filterCutoffHz << std::endl;
 
-    // Appliquer les paramètres à chaque frame
-    self->oscillator1.setWaveform(static_cast<WaveformType>(params.oscillator1WaveForm));
-    self->oscillator2.setWaveform(static_cast<WaveformType>(params.oscillator2WaveForm));
-    self->envelope.setAttackTime(params.attack);
-    self->envelope.setReleaseTime(params.release);
-    self->filter.setCutoff(params.cutoff);
-    self->filter.setResonance(params.resonance);
-    self->delay.setDelayTime(params.delayTime);
 
-    // 🎵 Gérer la note active
-    if (params.notePressed) {
-        float freq = 220.0f * std::pow(2.0f, params.noteIndex / 12.0f);
-        self->oscillator1.setFrequency(freq);
-        self->oscillator2.setFrequency(freq);
-        self->envelope.noteOn();
-    } else {
-        self->envelope.noteOff();
+    bool currentNoteState = paramsSnapshot.activeNote;
+
+    if (currentNoteState && !generator->previousNoteState) {
+        generator->osc1.resetPhase();
+        generator->osc2.resetPhase();
+        generator->envelope.noteOn();
+    } else if (!currentNoteState && generator->previousNoteState) {
+        generator->envelope.noteOff();
     }
+    generator->previousNoteState = currentNoteState;
 
-    float* audioBuffer = reinterpret_cast<float*>(outputBuffer);
+    float baseFrequency = 261.63f;
+    float noteFreq = baseFrequency * std::pow(2.0f, paramsSnapshot.noteIndex / 12.0f);
+
+    generator->osc1.setFrequency(noteFreq + paramsSnapshot.osc1FrequencyOffsetHz);
+    generator->osc1.setWaveform(static_cast<Oscillator::Waveform>(paramsSnapshot.osc1Waveform));
+
+    generator->osc2.setFrequency(noteFreq);
+    generator->osc2.setWaveform(Oscillator::Waveform::SAW);
+
+    generator->envelope.setParameters(paramsSnapshot.envelopeAttackSec, paramsSnapshot.envelopeReleaseSec);
+
+    float bufferOsc1[Constants::FramesPerBuffer]{};
+    float bufferOsc2[Constants::FramesPerBuffer]{};
+    float mixBuffer[Constants::FramesPerBuffer]{};
+
+    if (paramsSnapshot.osc1Active)
+        generator->osc1.process(bufferOsc1);
+    if (paramsSnapshot.osc2Active)
+        generator->osc2.process(bufferOsc2);
+
+    for (unsigned long i = 0; i < framesPerBuffer; ++i)
+        mixBuffer[i] = 0.5f * (bufferOsc1[i] + bufferOsc2[i]);
+
+    generator->envelope.process(mixBuffer);
+
+    generator->filter.setCutoffFrequencyHz(paramsSnapshot.filterCutoffHz);
+    generator->filter.setResonance(paramsSnapshot.filterResonance);
+    //generator->filter.process(mixBuffer);
+
+    generator->delay.setDelayTime(paramsSnapshot.delayTimeSec);
+    generator->delay.setMix(paramsSnapshot.delayMix);
+    generator->delay.process(mixBuffer);
+
+
 
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
-        float sample = 0.0f;
-
-        if (params.oscillator1Enabled)
-            sample += self->oscillator1.getNextSample();
-        if (params.oscillator2Enabled)
-            sample += self->oscillator2.getNextSample();
-
-        sample *= self->envelope.nextSample();
-        sample = self->filter.process(sample);
-
-        float dry = sample;
-        float wet = self->delay.process(sample);
-        sample = dry * (1.0f - params.delayMix) + wet * params.delayMix;
-
-        audioBuffer[i * 2] = sample;       // Left
-        audioBuffer[i * 2 + 1] = sample;   // Right
+        out[2 * i]     = mixBuffer[i];
+        out[2 * i + 1] = mixBuffer[i];
+        generator->wavOut.push_frame(out[2 * i], out[2 * i + 1]);
     }
 
-    return 0;
+    generator->currentTimeInSeconds += framesPerBuffer / static_cast<double>(Constants::SampleRate);
+
+    return paContinue;
 }
-//
-// void AudioGenerator::noteOn() {
-//     envelope.noteOn(); // Plus utilisé si tout est déclenché via params
-// }
-//
-// void AudioGenerator::noteOff() {
-//     envelope.noteOff(); // Plus utilisé
-// }

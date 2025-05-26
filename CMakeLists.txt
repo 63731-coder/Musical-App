@@ -13,6 +13,7 @@ add_executable(synth-63731 main.cpp
         audio/LowPassFilter.cpp
         audio/Delay.cpp
         AudioGenerator.cpp
+        AudioParam.cpp
         ./gui/MainWindow.cpp
         ./libraries/imgui/imgui.cpp
         ./libraries/imgui/imgui_demo.cpp

@@ -7,25 +7,37 @@
 
 
 
-enum class WaveformType {
-    SINE,
-    SQUARE,
-    SAW
-};
-
 class Oscillator {
 public:
-    Oscillator();
-    void setFrequency(float freq);
-    void setWaveform(WaveformType type);
-    float getNextSample();
+    // Formes d'onde disponibles
+    enum class Waveform {
+        SINE,
+        SQUARE,
+        SAW
+    };
+
+    explicit Oscillator();
+
+    // Définit la fréquence de l'oscillateur en Hz
+    void setFrequency(double newFrequencyHz);
+
+    // Définit la forme d'onde à générer
+    void setWaveform(Waveform newWaveform);
+
+    // Définit la fréquence d’échantillonnage
+    void setSampleRate(double newSampleRate);
+
+    // Réinitialise la phase de l’oscillateur
+    void resetPhase();
+
+    // Remplit un buffer audio stéréo avec des samples générés
+    void process(float* audioBuffer);
 
 private:
-    float frequency;
-    WaveformType waveform;
-    double phase;               // Current position within the waveform cycle (between 0 and 2π)
-    double phaseIncrement;      // Amount by which the phase advances at each audio tick
-    void updatePhaseIncrement();// Recomputes phase increment when frequency changes
+    double currentSampleRate;
+    double currentFrequencyHz;
+    double phaseRadians;
+    Waveform waveformType;
 };
 
 
