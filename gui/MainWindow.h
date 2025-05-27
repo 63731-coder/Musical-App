@@ -2,7 +2,7 @@
 #define TESTINSTRUCT_MAINWINDOW_H
 
 #include <SDL3/SDL.h>
-#include "../AudioParam.h"
+#include "../engine/AudioParam.h"
 
 class MainWindow {
 public:

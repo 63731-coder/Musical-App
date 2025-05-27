@@ -1,6 +1,4 @@
-#include <iostream>
-
-#include "AudioGenerator.h"
+#include "engine/AudioGenerator.h"
 #include "gui/MainWindow.h"
 
 int main() {
