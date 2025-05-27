@@ -6,7 +6,6 @@
 #include "portaudio.h"
 #include "audio/Oscillator.h"
 #include "AudioParam.h"
-#include "audio/WavOut.h"
 #include "audio/Delay.h"
 #include "audio/Envelope.h"
 #include "audio/LowPassFilter.h"
@@ -24,7 +23,6 @@ private:
 
     PaStream* stream {nullptr};
     LockedSynthParameters& params;
-    WavOut<2> wavOut;
 
     Oscillator osc1;
     Oscillator osc2;

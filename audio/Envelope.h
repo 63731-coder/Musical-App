@@ -7,34 +7,38 @@
 
 class Envelope {
 public:
-    Envelope();
-
-    void setAttackTime(float seconds);
-    void setReleaseTime(float seconds);
-
-    void noteOn();   // attack
-    void noteOff();  // release
-
-    float nextSample();  // The current amplitude (0.0 to 1.0)
-
-private:
+    // États de l'enveloppe
     enum class State {
-        IDLE, //inactive
+        IDLE,
         ATTACK,
-        SUSTAIN, //between attack and release
-        RELEASE
+        SUSTAIN,
+        RELEASE,
     };
 
-    State state = State::IDLE;
+    explicit Envelope(double initialSampleRate = 44100.0);
 
-    float attackTime = 0.05f;   // in seconds
-    float releaseTime = 0.75f;   // in seconds
+    void setSampleRate(double newSampleRate);
+    void setParameters(double attackTimeSeconds, double releaseTimeSeconds);
 
-    float amplitude = 0.0f;     // current level (between 0.0 and 1.0)
-    float attackIncrement = 0.0f;
-    float releaseIncrement = 0.0f;
+    void noteOn();   // Déclenchement de la note (attaque)
+    void noteOff();  // Fin de la note (relâchement)
 
-    void updateIncrements();  // recalculate the execution speed
+    void process(float* audioBuffer);  // Applique l'enveloppe au buffer audio
+    bool isRunning() const;            // Indique si une note est active
+
+private:
+    void enterState(State newState);   // Change d'état et initialise les compteurs
+
+    State currentState;
+
+    double sampleRate;
+    double envelopeValue;
+
+    double attackDurationSeconds;      // Durée de l'attaque
+    double releaseDurationSeconds;     // Durée du relâchement
+
+    int elapsedSamplesInStage;         // Compteur dans l'étape en cours
+    int totalSamplesInStage;           // Nombre total de samples dans l'étape
 };
 
 #endif // SIMPLE_SYNTH_ENVELOPE_H

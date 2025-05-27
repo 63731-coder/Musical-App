@@ -19,8 +19,8 @@ public:
 private:
     void updateCoefficients();
 
-    float cutoff = 1000.0f;     // Default cutoff frequency
-    float resonance = 0.5f;     // Default resonance
+    float cutoff;     // Default cutoff frequency
+    float resonance;    // Default resonance
 
     // Filter coefficients
     float a0 = 0.0f, a1 = 0.0f, a2 = 0.0f;

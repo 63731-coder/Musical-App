@@ -8,7 +8,7 @@
 #include "audio/Delay.h"
 
 AudioGenerator::AudioGenerator(LockedSynthParameters &sharedParams)
-    : params(sharedParams), wavOut("dump.wav",Constants::SampleRate)
+    : params(sharedParams)
      {
 }
 
@@ -88,9 +88,12 @@ int AudioGenerator::audioCallback(const void*, void* outputBuffer,
 
     generator->envelope.process(mixBuffer);
 
-    generator->filter.setCutoffFrequencyHz(paramsSnapshot.filterCutoffHz);
+    generator->filter.setCutoff(paramsSnapshot.filterCutoffHz);
     generator->filter.setResonance(paramsSnapshot.filterResonance);
-    //generator->filter.process(mixBuffer);
+    //generator->filter.process(*mixBuffer);
+    for (unsigned long i = 0; i < framesPerBuffer; ++i) {
+        mixBuffer[i] = generator->filter.process(mixBuffer[i]);
+    }
 
     generator->delay.setDelayTime(paramsSnapshot.delayTimeSec);
     generator->delay.setMix(paramsSnapshot.delayMix);
@@ -101,7 +104,6 @@ int AudioGenerator::audioCallback(const void*, void* outputBuffer,
     for (unsigned long i = 0; i < framesPerBuffer; ++i) {
         out[2 * i]     = mixBuffer[i];
         out[2 * i + 1] = mixBuffer[i];
-        generator->wavOut.push_frame(out[2 * i], out[2 * i + 1]);
     }
 
     generator->currentTimeInSeconds += framesPerBuffer / static_cast<double>(Constants::SampleRate);

@@ -6,9 +6,9 @@
 #define CONSTANTS_H
 #include <numbers>
 
-constexpr float TWO_PI = std::numbers::pi_v<float>*2;
-constexpr int SAMPLE_RATE = 44100;
-constexpr int FRAMES_PER_BUFFER = 256;
+// constexpr float TWO_PI = std::numbers::pi_v<float>*2;
+// constexpr int SAMPLE_RATE = 44100;
+// constexpr int FRAMES_PER_BUFFER = 256;
 
 
 namespace Constants {

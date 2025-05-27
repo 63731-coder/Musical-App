@@ -5,39 +5,44 @@
 #include "Delay.h"
 #include "../utils/Constants.h"
 
+
 Delay::Delay() {
-    setDelayTime(delayTime); // initialise buffer
+    // Créer un buffer circulaire de 2 secondes max
+    delayBuffer.resize(Constants::SampleRate * 2 , 0.0f); // 2 secondes stéréo
+    writeIndex = 0;
+    delayTime = 0.3f; // 300ms par défaut
+    mix = 0.2f;       // 20% par défaut
 }
 
 void Delay::setDelayTime(float seconds) {
     delayTime = seconds;
-    updateBufferSize();
 }
 
-void Delay::setMix(float newMix) {
-    if (newMix < 0.0f) newMix = 0.0f;
-    if (newMix > 1.0f) newMix = 1.0f;
-    mix = newMix;
+void Delay::setMix(float mixValue) {
+    mix = mixValue;
 }
 
-void Delay::updateBufferSize() {
-    delaySamples = static_cast<std::size_t>(delayTime * SAMPLE_RATE);
-    bufferSize = delaySamples + 1;
-    buffer.resize(bufferSize, 0.0f);
-    writeIndex = 0;
-}
+void Delay::process(float* buffer) {
+    // Calcul du délai en échantillons
+    int delaySamples = static_cast<int>(delayTime * Constants::SampleRate);
 
-float Delay::process(float input) {
-    std::size_t readIndex = (writeIndex + 1) % bufferSize;
-    float delayedSample = buffer[readIndex];
+    for (int i = 0; i < Constants::FramesPerBuffer ; ++i) { // *2 pour stéréo
+        // Calculer l'index de lecture
+        int readIndex = writeIndex - delaySamples;
+        if (readIndex < 0) {
+            readIndex += delayBuffer.size();
+        }
 
-    float output = input + mix * delayedSample;
+        // Lecture de l'échantillon retardé
+        float delayedSample = delayBuffer[readIndex];
 
-    // Write in the buffer
-    buffer[writeIndex] = input;
+        // Application de l'algorithme de delay (selon l'énoncé)
+        buffer[i] = buffer[i] + mix * delayedSample;
 
-    // Advance in the buffer
-    writeIndex = (writeIndex + 1) % bufferSize;
+        // Stockage de l'échantillon actuel
+        delayBuffer[writeIndex] = buffer[i];
 
-    return output;
+        // Avancer l'index d'écriture
+        writeIndex = (writeIndex + 1) % delayBuffer.size();
+    }
 }

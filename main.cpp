@@ -1,16 +1,14 @@
+#include <iostream>
+
 #include "AudioGenerator.h"
 #include "gui/MainWindow.h"
-#include "SharedAudioParams.h"
 
 int main() {
-    // Créer les paramètres partagés (thread-safe)
-    LockedSharedAudioParams sharedParams;
+    LockedSynthParameters sharedParams;
 
-    // Créer et initialiser l'audio
-    AudioGenerator audio;
-    audio.init(&sharedParams);
+    AudioGenerator generator(sharedParams);
+    generator.init();
 
-    // Créer la fenêtre GUI en lui passant les paramètres
     MainWindow window(sharedParams);
     window.init();
     window.run();

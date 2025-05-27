@@ -4,29 +4,26 @@
 
 #ifndef DELAY_H
 #define DELAY_H
-#include <cstddef>
 #include <vector>
 
 
 class Delay {
 public:
+    // Constructeur par défaut
     Delay();
 
-    void setDelayTime(float seconds);     // delay time [in seconds]
-    void setMix(float mix);          // intensity of the delay 0-1
+    // Méthodes pour définir les paramètres
+    void setDelayTime(float seconds);
+    void setMix(float mixValue);
 
-    float process(float input);           // applies the delay effect
+    // Méthode pour traiter le son
+    void process(float* buffer);
 
 private:
-    std::vector<float> buffer;            // circular buffer memory
-    std::size_t bufferSize = 0;           // actual size of the buffer
-    std::size_t writeIndex = 0;           // current write position
-
-    float mix = 0.5f;                     // intensity level
-    float delayTime = 0.3f;               // delay duration in seconds
-    std::size_t delaySamples = 0;         // delay duration in samples
-
-    void updateBufferSize();              // updates buffer size based on delay time
+    std::vector<float> delayBuffer;
+    int writeIndex;
+    float delayTime;
+    float mix;
 };
 
 

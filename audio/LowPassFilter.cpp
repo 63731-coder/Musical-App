@@ -4,6 +4,7 @@
 
 #include "LowPassFilter.h"
 #include <cmath>
+
 #include "../utils/Constants.h"
 
 LowPassFilter::LowPassFilter() {
@@ -22,7 +23,7 @@ void LowPassFilter::setResonance(float res) {
 
 void LowPassFilter::updateCoefficients() {
     float q = 0.5f / (1.0f - resonance);
-    float omega = 2.0f * (TWO_PI/2) * cutoff / SAMPLE_RATE;
+    float omega = Constants::TWO_PI * cutoff / Constants::SampleRate;
     float alpha = std::sin(omega) / (2.0f * q);
     float cosw = std::cos(omega);
     float norm = 1.0f / (1.0f + alpha);
