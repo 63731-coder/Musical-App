@@ -4,11 +4,11 @@
 #include <memory>
 
 #include "portaudio.h"
-#include "audio/Oscillator.h"
+#include "../audio/Oscillator.h"
 #include "AudioParam.h"
-#include "audio/Delay.h"
-#include "audio/Envelope.h"
-#include "audio/LowPassFilter.h"
+#include "../audio/Delay.h"
+#include "../audio/Envelope.h"
+#include "../audio/LowPassFilter.h"
 
 
 class AudioGenerator {

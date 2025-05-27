@@ -1,11 +1,9 @@
 #include "AudioGenerator.h"
-#include "utils/Constants.h"
+#include "../utils/Constants.h"
 #include <iostream>
 #include <algorithm>
 #include <cmath>
-#include "audio/Envelope.h"
 
-#include "audio/Delay.h"
 
 AudioGenerator::AudioGenerator(LockedSynthParameters &sharedParams)
     : params(sharedParams)

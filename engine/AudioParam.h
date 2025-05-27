@@ -8,7 +8,7 @@
 struct SynthParameters {
 
     bool osc1Active = true;
-    int osc1Waveform = 0;
+    int osc1Waveform = 0;   // 0 sine, 1 square, 2 saw
     float osc1Phase = 0.0f;
     float osc1FrequencyOffsetHz = 0.0f;
 
