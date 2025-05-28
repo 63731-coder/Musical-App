@@ -6,12 +6,12 @@
 #include "../utils/Constants.h"
 
 
-Delay::Delay() {
-    // Créer un buffer circulaire de 2 secondes max
-    delayBuffer.resize(Constants::SampleRate * 2 , 0.0f); // 2 secondes stéréo
-    writeIndex = 0;
-    delayTime = 0.3f; // 300ms par défaut
-    mix = 0.2f;       // 20% par défaut
+Delay::Delay()
+    : writeIndex(0),
+      delayTime(0.3f),
+      mix(0.2f)
+{
+    delayBuffer.resize(Constants::SampleRate * 2, 0.0f);
 }
 
 void Delay::setDelayTime(float seconds) {

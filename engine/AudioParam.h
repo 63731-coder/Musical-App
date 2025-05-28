@@ -15,7 +15,6 @@ struct SynthParameters {
 
     // Oscillator 2
     bool osc2Active = true;
-    int osc2Waveform = 2;
     float osc2Phase = 0.0f;
 
     // Envelope
