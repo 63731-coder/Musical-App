@@ -1,29 +1,28 @@
 //
 // Created by Nicoleta on 18-04-25.
 //
-
 #include "LowPassFilter.h"
 #include <cmath>
-
 #include "../utils/Constants.h"
 
 LowPassFilter::LowPassFilter() {
     updateCoefficients();
 }
 
-void LowPassFilter::setCutoff(float cutoffHz) {
-    cutoff = cutoffHz;
+void LowPassFilter::setCutoffFrequencyHz(float newCutoffFrequencyHz) {
+    cutoffFrequencyHz = newCutoffFrequencyHz;
     updateCoefficients();
 }
 
-void LowPassFilter::setResonance(float res) {
-    resonance = res;
+
+void LowPassFilter::setResonance(float newResonance) {
+    resonance = newResonance;
     updateCoefficients();
 }
 
 void LowPassFilter::updateCoefficients() {
     float q = 0.5f / (1.0f - resonance);
-    float omega = Constants::TWO_PI * cutoff / Constants::SampleRate;
+    float omega = (Constants::TWO_PI) * cutoffFrequencyHz / Constants::SampleRate;
     float alpha = std::sin(omega) / (2.0f * q);
     float cosw = std::cos(omega);
     float norm = 1.0f / (1.0f + alpha);
@@ -35,15 +34,13 @@ void LowPassFilter::updateCoefficients() {
     b2 = (1.0f - alpha) * norm;
 }
 
+
 float LowPassFilter::process(float input) {
-    float output = a0 * input + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+    float output = a0 * input + a1 * prevInput1 + a2 * prevInput2 - b1 * prevOutput1 - b2 * prevOutput2;
 
-    // Update state
-    x2 = x1;
-    x1 = input;
-    y2 = y1;
-    y1 = output;
-
+    prevInput2 = prevInput1;
+    prevInput1 = input;
+    prevOutput2 = prevOutput1;
+    prevOutput1 = output;
     return output;
 }
-

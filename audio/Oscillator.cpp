@@ -2,15 +2,15 @@
 // Created by Nicoleta on 10-04-25.
 //
 
-// src/audio/Oscillator.cpp
 #include "Oscillator.h"
 #include "../utils/Constants.h"
 #include <cmath>
 
 
+
 Oscillator::Oscillator()
     : currentSampleRate(Constants::SampleRate),
-      currentFrequencyHz(440.0),
+      currentFrequencyHz(0.0),
       phaseRadians(0.0),
       waveformType(Waveform::SINE) {
 }
@@ -31,7 +31,7 @@ void Oscillator::setSampleRate(double newSampleRate) {
     currentSampleRate = newSampleRate;
 }
 
-void Oscillator::process(float* audioBuffer) {
+void Oscillator::process(float *audioBuffer) {
     double phaseIncrement = Constants::TWO_PI * currentFrequencyHz / currentSampleRate;
 
     for (int i = 0; i < Constants::FramesPerBuffer; ++i) {

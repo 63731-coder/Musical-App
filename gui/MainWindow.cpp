@@ -4,15 +4,16 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 #include <cmath>
+#include "../utils/Constants.h"
 
 constexpr float FRAMERATE = 60.0f;
 constexpr std::chrono::duration<double, std::milli> TARGET_FRAMETIME(1000.0 / FRAMERATE);
 
-MainWindow::MainWindow(LockedSynthParameters& params)
-    : params(params)
-{}
-void MainWindow::init() {
+MainWindow::MainWindow(LockedSynthParameters &params)
+    : params(params) {
+}
 
+void MainWindow::init() {
     // Setup SDL
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
         SDL_Log("Error: SDL_Init(): %s", SDL_GetError());
@@ -32,13 +33,14 @@ void MainWindow::init() {
         return;
     }
     SDL_SetWindowPosition(
-            window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+        window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     SDL_ShowWindow(window);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
@@ -54,12 +56,12 @@ void MainWindow::init() {
 void MainWindow::run() {
     const auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    bool done { false };
-    while (!done){
+    bool done{false};
+    while (!done) {
         auto frameStart = std::chrono::high_resolution_clock::now();
 
         SDL_Event event;
-        while (SDL_PollEvent(&event)){
+        while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL3_ProcessEvent(&event);
             if (SDL_EVENT_QUIT == event.type)
                 done = true;
@@ -112,8 +114,8 @@ void MainWindow::draw() {
     ImGui::Checkbox("OSC 1", &currentState.osc1Active);
 
     // --- OSC1 Waveform (menu déroulant) ---
-    const char* waveforms[] = { "SINE", "SQUARE", "SAW" };
-    ImGui::SetNextItemWidth(600);
+    const char *waveforms[] = {"SINE", "SQUARE", "SAW"};
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::Combo("OSC1 Waveform", &currentState.osc1Waveform, waveforms, IM_ARRAYSIZE(waveforms));
 
     // --- OSC1 Frequency Offset ---
@@ -124,19 +126,20 @@ void MainWindow::draw() {
     ImGui::Checkbox("OSC 2", &currentState.osc2Active);
 
     // --- Attack slider ---
-    ImGui::SetNextItemWidth(600);
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Attack", &currentState.envelopeAttackSec, 0.0f, 1.0f, "%.2f sec");
 
     // --- Release slider ---
-    ImGui::SetNextItemWidth(600);
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Release", &currentState.envelopeReleaseSec, 0.0f, 2.0f, "%.2f sec");
 
     // --- Filter Cutoff slider ---
-    ImGui::SetNextItemWidth(600);
-    ImGui::SliderFloat("Filter Cutoff", &currentState.filterCutoffHz, 20.0f, 20000, "%.0f Hz", ImGuiSliderFlags_Logarithmic);
+    ImGui::SetNextItemWidth(Constants::widthControls);
+    ImGui::SliderFloat("Filter Cutoff", &currentState.filterCutoffHz, Constants::MinCutoff, Constants::MaxCutoff,
+                       "%.0f Hz", ImGuiSliderFlags_Logarithmic);
 
     // --- Filter Resonance slider ---
-    ImGui::SetNextItemWidth(600);
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Filter Resonance", &currentState.filterResonance, 0.01f, 0.99f, "%.2f");
 
     // --- Delay Time slider ---
@@ -147,10 +150,11 @@ void MainWindow::draw() {
     ImGui::SetNextItemWidth(600);
     ImGui::SliderFloat("Delay Mix", &currentState.delayMix, 0.0f, 1.0f, "%.2f");
 
+
     // --- Clavier virtuel (13 boutons) ---
     ImGui::Separator();
 
-    const char* noteNames[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13" };
+    const char *noteNames[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"};
     const ImGuiKey keyMap[] = {
         ImGuiKey_Q, ImGuiKey_Z, ImGuiKey_S, ImGuiKey_E, ImGuiKey_D,
         ImGuiKey_F, ImGuiKey_T, ImGuiKey_G, ImGuiKey_Y, ImGuiKey_H,
@@ -165,7 +169,7 @@ void MainWindow::draw() {
             isAnyKeyPressed = true;
             currentState.activeNote = true;
             currentState.noteIndex = i;
-            break;  // On ne joue qu'une note à la fois
+            break; // On ne joue qu'une note à la fois
         }
     }
 
@@ -179,7 +183,9 @@ void MainWindow::draw() {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.7f, 0.9f, 1.0f));
         }
 
-        if (ImGui::Button(noteNames[i], ImVec2(30, 30))) {
+        ImGui::Button(noteNames[i], ImVec2(30, 30));
+
+        if (ImGui::IsItemActive()) {
             isAnyKeyPressed = true;
             currentState.activeNote = true;
             currentState.noteIndex = i;
@@ -197,8 +203,7 @@ void MainWindow::draw() {
     if (!isAnyKeyPressed) {
         currentState.activeNote = false;
     }
-    params.setCopy(currentState);
+    params.upDate(currentState);
 
     ImGui::End();
-
 }

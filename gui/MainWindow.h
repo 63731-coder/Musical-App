@@ -1,20 +1,23 @@
 #ifndef TESTINSTRUCT_MAINWINDOW_H
 #define TESTINSTRUCT_MAINWINDOW_H
-
-#include <SDL3/SDL.h>
 #include "../engine/AudioParam.h"
+#include <SDL3/SDL.h>
 
 class MainWindow {
 public:
-    MainWindow(LockedSynthParameters& params);
+    MainWindow(LockedSynthParameters &params);
+
     void init();
+
     void run();
+
 private:
     void draw();
 
-    SDL_Window* window { nullptr };
-    SDL_Renderer* renderer { nullptr };
+    SDL_Window *window{nullptr};
+    SDL_Renderer *renderer{nullptr};
 
-    LockedSynthParameters& params;
+    LockedSynthParameters &params;
 };
+
 #endif //TESTINSTRUCT_MAINWINDOW_H

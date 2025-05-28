@@ -1,21 +1,32 @@
 #ifndef AUDIOGENERATOR_H
 #define AUDIOGENERATOR_H
 
+
 #include <memory>
 
 #include "portaudio.h"
 #include "../audio/Oscillator.h"
+#include "../audio/LowPassFilter.h"
 #include "AudioParam.h"
 #include "../audio/Delay.h"
 #include "../audio/Envelope.h"
-#include "../audio/LowPassFilter.h"
 
-// Responsible for generating audio output using PortAudio
+
 class AudioGenerator {
 public:
     explicit AudioGenerator(LockedSynthParameters &sharedParams);
 
     void init();
+
+    void processOscillators(float *outBuffer, const SynthParameters &params, unsigned long numSamples);
+
+    void applyEnvelope(float *buffer);
+
+    void applyFilter(float *buffer, const SynthParameters &params);
+
+    void applyDelay(float *buffer, const SynthParameters &params);
+
+    void outputToStereo(float *out, const float *monoBuffer);
 
 private:
     static int audioCallback(const void *, void *outputBuffer,
@@ -23,24 +34,20 @@ private:
                              const PaStreamCallbackTimeInfo *, PaStreamCallbackFlags,
                              void *userData);
 
+    void handleNoteEvents(const SynthParameters &paramsSnapshot);
+
+
     PaStream *stream{nullptr};
     LockedSynthParameters &params;
 
     Oscillator osc1;
     Oscillator osc2;
-    Envelope envelope;
     LowPassFilter filter;
     Delay delay;
+    Envelope envelope;
+
 
     double currentTimeInSeconds{0.0};
     bool previousNoteState{false};
-
-    void handleNoteStateChange(const SynthParameters& paramsSnapshot);
-    void prepareOscillators(const SynthParameters &paramsSnapshot);
-    void generateAndMixBuffers(const SynthParameters& paramsSnapshot, float* mixBuffer);
-    void applyEffects(const SynthParameters& paramsSnapshot, float* buffer);
-    void writeToOutput(float* output, const float* buffer, unsigned long frames);
-
 };
-
 #endif // AUDIOGENERATOR_H

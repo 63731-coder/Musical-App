@@ -5,32 +5,26 @@
 #ifndef LOWPASSFILTER_H
 #define LOWPASSFILTER_H
 
-
-
 class LowPassFilter {
 public:
-    LowPassFilter();
+    explicit LowPassFilter();
 
-    void setCutoff(float cutoffHz);     // [20 Hz - 20000 Hz]
-    void setResonance(float resonance); // [0.0 - 1.0]
+    void setCutoffFrequencyHz(float newCutoffFrequencyHz);
 
-    float process(float input); // Apply filter to a sample
+    void setResonance(float newResonance);
+
+    float process(float audioBuffer);
 
 private:
     void updateCoefficients();
 
-    float cutoff;
-    float resonance;
+    float cutoffFrequencyHz = 1000.0f; ;
+    float resonance = 0.5f;
 
-    // Filter coefficients
     float a0 = 0.0f, a1 = 0.0f, a2 = 0.0f;
     float b1 = 0.0f, b2 = 0.0f;
 
-    // State for mono
-    float x1 = 0.0f, x2 = 0.0f;
-    float y1 = 0.0f, y2 = 0.0f;
+    float prevInput1 = 0.0f, prevInput2 = 0.0f;
+    float prevOutput1 = 0.0f, prevOutput2 = 0.0f;
 };
-
-
-
 #endif //LOWPASSFILTER_H
