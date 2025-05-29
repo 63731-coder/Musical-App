@@ -10,7 +10,7 @@ include_directories("libraries/imgui/backends"
 add_executable(synth-63731 main.cpp
         audio/Oscillator.cpp
         audio/Envelope.cpp
-        audio/LowPassFilter.cpp
+        audio/Filter.cpp
         audio/Delay.cpp
         engine/AudioGenerator.cpp
         engine/AudioParam.cpp

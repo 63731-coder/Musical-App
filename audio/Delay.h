@@ -14,7 +14,6 @@ public:
 
     void setMix(float mixValue);
 
-    // Méthode pour traiter le son
     void process(float *buffer);
 
 private:

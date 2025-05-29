@@ -13,23 +13,18 @@ public:
         SAW
     };
 
-    explicit Oscillator();
+    Oscillator();
 
     void setFrequency(double newFrequencyHz);
 
     void setWaveform(Waveform newWaveform);
-
-    void setSampleRate(double newSampleRate);
-
-    void resetPhase();
-
 
     void process(float *audioBuffer);
 
 private:
     double currentSampleRate;
     double currentFrequencyHz;
-    double phaseRadians;
+    double phase_radians;
     Waveform waveformType;
 };
 

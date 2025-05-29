@@ -6,7 +6,7 @@
 
 #include "portaudio.h"
 #include "../audio/Oscillator.h"
-#include "../audio/LowPassFilter.h"
+#include "../audio/Filter.h"
 #include "AudioParam.h"
 #include "../audio/Delay.h"
 #include "../audio/Envelope.h"
@@ -42,7 +42,7 @@ private:
 
     Oscillator osc1;
     Oscillator osc2;
-    LowPassFilter filter;
+    Filter filter;
     Delay delay;
     Envelope envelope;
 

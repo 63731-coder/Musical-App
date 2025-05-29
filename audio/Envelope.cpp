@@ -3,90 +3,90 @@
 //
 
 #include "Envelope.h"
-#include <algorithm>
 #include "../utils/Constants.h"
 
-void Envelope::setParameters(double attackTimeSeconds, double releaseTimeSeconds) {
-    _attackTime = attackTimeSeconds;
-    _releaseTime = releaseTimeSeconds;
+void Envelope::setParameters(const float attackTimeSeconds, const float releaseTimeSeconds) {
+    attackTime = attackTimeSeconds;
+    releaseTime = releaseTimeSeconds;
 
-
-    _attackFrames = static_cast<int>(Constants::SampleRate * _attackTime);
-    _releaseFrames = static_cast<int>(Constants::SampleRate * _releaseTime);
+    //convert them to sample frame counts
+    attackFrames = static_cast<int>(Constants::SampleRate * attackTime);
+    releaseFrames = static_cast<int>(Constants::SampleRate * releaseTime);
 }
 
 void Envelope::noteOn() {
-    if (_stage == State::ATTACK) {
-        return;
+    if (stage == State::ATTACK) {
+        return; // already attacking
     }
+    stage = State::ATTACK;
+    frameCounter = 0;
 
-    _stage = State::ATTACK;
-    _frameCounter = 0;
-
-
-    if (_amplitude > 0.0f && _attackFrames > 0) {
-        _frameCounter = static_cast<int>(_amplitude * _attackFrames);
+    // If already partially active, resume attack from the current amplitude to avoid the 'pop' noise
+    if (amplitude > 0.0f && attackFrames > 0) {
+        frameCounter = static_cast<int>(amplitude * static_cast<float>(attackFrames));
     }
 }
 
 void Envelope::noteOff() {
-    if (_stage == State::RELEASE || _stage == State::IDLE) {
-        return;
+    if (stage == State::RELEASE || stage == State::DECAY) {
+        return; // already releasing or inactive
     }
+    stage = State::RELEASE;
+    frameCounter = 0;
 
-    _stage = State::RELEASE;
-    _frameCounter = 0;
-
-
-    if (_amplitude < 1.0f && _releaseFrames > 0) {
-        _frameCounter = static_cast<int>((1.0f - _amplitude) * _releaseFrames);
+    // If still above zero, release from current amplitude to avoid the 'pop' noise
+    if (amplitude < 1.0f && releaseFrames > 0) {
+        frameCounter = static_cast<int>((1.0f - amplitude) * static_cast<float>(releaseFrames));
     }
 }
 
 void Envelope::process(float *audioBuffer) {
     for (int frame = 0; frame < Constants::FramesPerBuffer; ++frame) {
-        switch (_stage) {
+        switch (stage) {
             case State::ATTACK:
-                if (_attackFrames > 0) {
-                    _amplitude = static_cast<float>(_frameCounter) / _attackFrames;
-                    if (_amplitude >= 1.0f) {
-                        _amplitude = 1.0f;
-                        _stage = State::SUSTAIN;
+                if (attackFrames > 0) {
+                    // Increase amplitude gradually during attack
+                    amplitude = static_cast<float>(frameCounter) / static_cast<float>(attackFrames);
+                    if (amplitude >= 1.0f) {
+                        amplitude = 1.0f;
+                        stage = State::SUSTAIN; // Move to sustain once attack completes (amplitude = 1)
                     } else {
-                        _frameCounter++;
+                        frameCounter++;
                     }
                 } else {
-
-                    _amplitude = 1.0f;
-                    _stage = State::SUSTAIN;
+                    // If attack = 0, go straight to full amplitude
+                    amplitude = 1.0f;
+                    stage = State::SUSTAIN;
                 }
                 break;
 
             case State::SUSTAIN:
-                _amplitude = 1.0f;
+                amplitude = 1.0f; // hold full volume
                 break;
 
             case State::RELEASE:
-                if (_releaseFrames > 0) {
-                    _amplitude = 1.0f - (static_cast<float>(_frameCounter) / _releaseFrames);
-                    if (_amplitude <= 0.0f) {
-                        _amplitude = 0.0f;
-                        _stage = State::IDLE;
+                if (releaseFrames > 0) {
+                    // Decrease amplitude gradually during release
+                    amplitude = 1.0f - (static_cast<float>(frameCounter) / static_cast<float>(releaseFrames));
+                    if (amplitude <= 0.0f) {
+                        amplitude = 0.0f;
+                        stage = State::DECAY; // Finished releasing
                     } else {
-                        _frameCounter++;
+                        frameCounter++;
                     }
                 } else {
-
-                    _amplitude = 0.0f;
-                    _stage = State::IDLE;
+                    // If release time is zero, go straight to zero
+                    amplitude = 0.0f;
+                    stage = State::DECAY;
                 }
                 break;
 
-            case State::IDLE:
-                _amplitude = 0.0f;
+            case State::DECAY: // Stay silent
+                amplitude = 0.0f;
                 break;
         }
 
-        audioBuffer[frame] *= _amplitude;
+        // Apply current amplitude to the audio sample
+        audioBuffer[frame] = audioBuffer[frame] * amplitude;
     }
 }

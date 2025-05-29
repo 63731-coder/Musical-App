@@ -2,12 +2,12 @@
 // Created by Nicoleta on 18-04-25.
 //
 
-#ifndef LOWPASSFILTER_H
-#define LOWPASSFILTER_H
+#ifndef FILTER_H
+#define FILTER_H
 
-class LowPassFilter {
+class Filter {
 public:
-    explicit LowPassFilter();
+    explicit Filter();
 
     void setCutoffFrequencyHz(float newCutoffFrequencyHz);
 
@@ -27,4 +27,4 @@ private:
     float prevInput1 = 0.0f, prevInput2 = 0.0f;
     float prevOutput1 = 0.0f, prevOutput2 = 0.0f;
 };
-#endif //LOWPASSFILTER_H
+#endif //FILTER_H

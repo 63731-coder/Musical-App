@@ -105,8 +105,8 @@ void MainWindow::run() {
 }
 
 void MainWindow::draw() {
-    ImGui::SetNextWindowSize(ImVec2(760, 500));
-    ImGui::Begin("Synthétiseur", nullptr, ImGuiWindowFlags_NoResize);
+    ImGui::SetNextWindowSize(ImVec2(660, 400));
+    ImGui::Begin("Synthétiseur", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
     SynthParameters currentState = params.getCopy();
 
@@ -119,7 +119,7 @@ void MainWindow::draw() {
     ImGui::Combo("OSC1 Waveform", &currentState.osc1Waveform, waveforms, IM_ARRAYSIZE(waveforms));
 
     // --- OSC1 Frequency Offset ---
-    ImGui::SetNextItemWidth(585);
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("OSC1 Frequency Offset", &currentState.osc1FrequencyOffsetHz, -5.0f, 5.0f, "%.1f Hz");
 
     // --- OSC2 (checkbox) ---
@@ -143,11 +143,11 @@ void MainWindow::draw() {
     ImGui::SliderFloat("Filter Resonance", &currentState.filterResonance, 0.01f, 0.99f, "%.2f");
 
     // --- Delay Time slider ---
-    ImGui::SetNextItemWidth(600);
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Delay Time", &currentState.delayTimeSec, 0.1f, 2.0f, "%.2f sec");
 
     // --- Delay Mix slider ---
-    ImGui::SetNextItemWidth(600);
+    ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Delay Mix", &currentState.delayMix, 0.0f, 1.0f, "%.2f");
 
 

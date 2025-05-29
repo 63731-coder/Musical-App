@@ -1,26 +1,26 @@
 //
 // Created by Nicoleta on 18-04-25.
 //
-#include "LowPassFilter.h"
+#include "Filter.h"
 #include <cmath>
 #include "../utils/Constants.h"
 
-LowPassFilter::LowPassFilter() {
+Filter::Filter() {
     updateCoefficients();
 }
 
-void LowPassFilter::setCutoffFrequencyHz(float newCutoffFrequencyHz) {
+void Filter::setCutoffFrequencyHz(float newCutoffFrequencyHz) {
     cutoffFrequencyHz = newCutoffFrequencyHz;
     updateCoefficients();
 }
 
 
-void LowPassFilter::setResonance(float newResonance) {
+void Filter::setResonance(float newResonance) {
     resonance = newResonance;
     updateCoefficients();
 }
 
-void LowPassFilter::updateCoefficients() {
+void Filter::updateCoefficients() {
     float q = 0.5f / (1.0f - resonance);
     float omega = (Constants::TWO_PI) * cutoffFrequencyHz / Constants::SampleRate;
     float alpha = std::sin(omega) / (2.0f * q);
@@ -35,7 +35,7 @@ void LowPassFilter::updateCoefficients() {
 }
 
 
-float LowPassFilter::process(float input) {
+float Filter::process(float input) {
     float output = a0 * input + a1 * prevInput1 + a2 * prevInput2 - b1 * prevOutput1 - b2 * prevOutput2;
 
     prevInput2 = prevInput1;
