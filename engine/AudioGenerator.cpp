@@ -22,7 +22,8 @@ void AudioGenerator::handleNoteEvents(const SynthParameters &paramsSnapshot) {
 }
 
 // Generates oscillator signals and mixes them into outBuffer
-void AudioGenerator::processOscillators(float *outBuffer, const SynthParameters &params, const unsigned long numSamples) {
+void AudioGenerator::processOscillators(float *outBuffer, const SynthParameters &params,
+                                        const unsigned long numSamples) {
     // Convert note index to frequency in Hz
     const float noteFreq = 220.0f * std::pow(2.0f, static_cast<float>(params.noteIndex) / 12.0f);
 
