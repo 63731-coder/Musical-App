@@ -1,4 +1,6 @@
+//
 // Created by Nicoleta on 25-04-25.
+//
 
 #ifndef AUDIOPARAM_H
 #define AUDIOPARAM_H
@@ -6,10 +8,9 @@
 #include <mutex>
 
 struct SynthParameters {
-
     // Oscillator 1
     bool osc1Active = true;
-    int osc1Waveform = 0;   // 0 sine, 1 square, 2 saw
+    int osc1Waveform = 0; // 0 sine, 1 square, 2 saw
     float osc1Phase = 0.0f;
     float osc1FrequencyOffsetHz = 0.0f;
 
@@ -31,13 +32,15 @@ struct SynthParameters {
 
     // Note state
     bool activeNote = false;
-    int noteIndex = 0;	// 0 to 11 (for calculating frequency)
+    int noteIndex = 0; // 0 to 11 (for calculating frequency)
 };
 
 class LockedSynthParameters {
 public:
     LockedSynthParameters() = default;
+
     SynthParameters getCopy() const;
+
     void upDate(const SynthParameters &newData);
 
 private:

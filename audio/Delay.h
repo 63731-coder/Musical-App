@@ -6,21 +6,25 @@
 
 #include <vector>
 
+// Delay class: adds a simple audio delay (echo) effect using a circular buffer
 class Delay {
 public:
-    explicit Delay();
+    Delay();
 
+    // Set the delay time in seconds
     void setDelayTime(float seconds);
 
+    // Set how much of the delayed signal is mixed in
     void setMix(float mixValue);
 
+    // Apply the delay effect to a buffer of audio samples
     void process(float *buffer);
 
 private:
-    std::vector<float> delayBuffer;
-    int writeIndex;
-    float delayTime;
-    float mix;
+    std::vector<float> delayBuffer; // Circular buffer for delayed samples
+    int writeIndex; // Current write position in the delay buffer
+    float delayTime; // Delay time in seconds
+    float mixLevel; // Mix amount of delayed signal (0.0 - 1.0)
 };
 
 #endif // DELAY_H

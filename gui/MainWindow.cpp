@@ -53,8 +53,8 @@ void MainWindow::init() {
     ImGui_ImplSDLRenderer3_Init(renderer);
 }
 
-void MainWindow::run() {
-    const auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+void MainWindow::run() const {
+    constexpr auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     bool done{false};
     while (!done) {
@@ -104,58 +104,58 @@ void MainWindow::run() {
     SDL_Quit();
 }
 
-void MainWindow::draw() {
+void MainWindow::draw() const {
     ImGui::SetNextWindowSize(ImVec2(660, 400));
     ImGui::Begin("Synthétiseur", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
     SynthParameters currentState = params.getCopy();
 
-    // --- OSC1 et OSC2 (checkboxes) ---
+    //  OSC1 et OSC2 (checkboxes)
     ImGui::Checkbox("OSC 1", &currentState.osc1Active);
 
-    // --- OSC1 Waveform (menu déroulant) ---
+    //  OSC1 Waveform
     const char *waveforms[] = {"SINE", "SQUARE", "SAW"};
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::Combo("OSC1 Waveform", &currentState.osc1Waveform, waveforms, IM_ARRAYSIZE(waveforms));
 
-    // --- OSC1 Frequency Offset ---
+    //  OSC1 Frequency Offset
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("OSC1 Frequency Offset", &currentState.osc1FrequencyOffsetHz, -5.0f, 5.0f, "%.1f Hz");
 
-    // --- OSC2 (checkbox) ---
+    //  OSC2 (checkbox)
     ImGui::Checkbox("OSC 2", &currentState.osc2Active);
 
-    // --- Attack slider ---
+    //  Attack slider
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Attack", &currentState.envelopeAttackSec, 0.0f, 1.0f, "%.2f sec");
 
-    // --- Release slider ---
+    //  Release slider
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Release", &currentState.envelopeReleaseSec, 0.0f, 2.0f, "%.2f sec");
 
-    // --- Filter Cutoff slider ---
+    //  Filter Cutoff slider
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Filter Cutoff", &currentState.filterCutoffHz, Constants::MinCutoff, Constants::MaxCutoff,
                        "%.0f Hz", ImGuiSliderFlags_Logarithmic);
 
-    // --- Filter Resonance slider ---
+    //  Filter Resonance slider
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Filter Resonance", &currentState.filterResonance, 0.01f, 0.99f, "%.2f");
 
-    // --- Delay Time slider ---
+    //  Delay Time slider
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Delay Time", &currentState.delayTimeSec, 0.1f, 2.0f, "%.2f sec");
 
-    // --- Delay Mix slider ---
+    //  Delay Mix slider
     ImGui::SetNextItemWidth(Constants::widthControls);
     ImGui::SliderFloat("Delay Mix", &currentState.delayMix, 0.0f, 1.0f, "%.2f");
 
 
-    // --- Clavier virtuel (13 boutons) ---
+    //  Virtual keyboard
     ImGui::Separator();
 
     const char *noteNames[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"};
-    const ImGuiKey keyMap[] = {
+    constexpr ImGuiKey keyMap[] = {
         ImGuiKey_Q, ImGuiKey_Z, ImGuiKey_S, ImGuiKey_E, ImGuiKey_D,
         ImGuiKey_F, ImGuiKey_T, ImGuiKey_G, ImGuiKey_Y, ImGuiKey_H,
         ImGuiKey_U, ImGuiKey_J, ImGuiKey_K
@@ -163,7 +163,7 @@ void MainWindow::draw() {
 
     bool isAnyKeyPressed = false;
 
-    // Vérifier d'abord les touches du clavier
+    // First ckeck the keyboard
     for (int i = 0; i < 13; ++i) {
         if (ImGui::IsKeyDown(keyMap[i])) {
             isAnyKeyPressed = true;
@@ -173,11 +173,11 @@ void MainWindow::draw() {
         }
     }
 
-    // Afficher les boutons et détecter les clics de souris
+    // Show the buttons and detect the keyboard press
     for (int i = 0; i < 13; ++i) {
         ImGui::PushID(i);
 
-        // Mettre le bouton en surbrillance si c'est la note active
+        // if ket active - color it
         bool isActive = (currentState.noteIndex == i && currentState.activeNote);
         if (isActive) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.7f, 0.9f, 1.0f));

@@ -29,7 +29,7 @@ void Filter::updateCoefficients() {
 
     a0 = (1.0f - cosw) * 0.5f * norm;
     a1 = (1.0f - cosw) * norm;
-    a2 = (1.0f - cosw) * 0.5f * norm;
+    a2 = a0;
     b1 = -2.0f * cosw * norm;
     b2 = (1.0f - alpha) * norm;
 }

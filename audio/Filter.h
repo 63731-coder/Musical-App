@@ -23,8 +23,8 @@ private:
     void updateCoefficients();
 
     // Filter settings
-    float cutoffFrequencyHz;  // Where the filter starts cutting
-    float resonance;          // How strong the peak is at the cutoff point
+    float cutoffFrequencyHz; // Where the filter starts cutting
+    float resonance; // How strong the peak is at the cutoff point
 
     // Coefficients used in the filter formula
     float a0 = 0.0f, a1 = 0.0f, a2 = 0.0f;

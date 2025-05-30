@@ -5,19 +5,22 @@
 
 class MainWindow {
 public:
-    MainWindow(LockedSynthParameters &params);
+    explicit MainWindow(LockedSynthParameters &params);
 
+    // Initializes the SDL window and renderer.
     void init();
 
-    void run();
+    // Main loop of the window: handles events
+    void run() const;
 
 private:
-    void draw();
+    // Handles drawing visual elements to the screen.
+    void draw() const;
 
-    SDL_Window *window{nullptr};
-    SDL_Renderer *renderer{nullptr};
+    SDL_Window *window{nullptr}; // SDL window handle
+    SDL_Renderer *renderer{nullptr}; // SDL renderer handle
 
-    LockedSynthParameters &params;
+    LockedSynthParameters &params; //thread-safe parameters
 };
 
 #endif //TESTINSTRUCT_MAINWINDOW_H

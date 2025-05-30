@@ -26,7 +26,7 @@ public:
 
     void applyDelay(float *buffer, const SynthParameters &params);
 
-    void outputToStereo(float *out, const float *monoBuffer);
+    void outputToStereo(float *out, const float *monoBuffer); // Convert mono signal to stereo
 
 private:
     static int audioCallback(const void *, void *outputBuffer,
@@ -37,7 +37,7 @@ private:
     void handleNoteEvents(const SynthParameters &paramsSnapshot);
 
 
-    PaStream *stream{nullptr};
+    PaStream *stream{nullptr}; // PortAudio stream
     LockedSynthParameters &params;
 
     Oscillator osc1;
@@ -46,8 +46,6 @@ private:
     Delay delay;
     Envelope envelope;
 
-
-    double currentTimeInSeconds{0.0};
-    bool previousNoteState{false};
+    bool previousNoteState{false}; // Used to detect note on/off changes
 };
 #endif // AUDIOGENERATOR_H
